@@ -177,13 +177,17 @@ public class EachConnect : MonoBehaviour
 		
 		if(_RobotProxy.portNames.Count > 0)
 		{
-
+			int nSelectItem = 0;
 			for(int i=0; i<_RobotProxy.portNames.Count; i++)
 			{
 				_UIPortList.items.Add(_RobotProxy.portNames[i]);
+				if (_RobotProxy.portNames[i] == PlayerPrefs.GetString("PP_Port" + _RobotID.ToString()))
+					nSelectItem = i;
 			}
-			_UIPortList.value = _UIPortList.items[0];
+			_UIPortList.value = _UIPortList.items[nSelectItem];
 			_goBtnConnect.SetActive(true);		// NGUI
+
+
 		}
 		else if(_RobotProxy.portNames.Count == 0)
 		{

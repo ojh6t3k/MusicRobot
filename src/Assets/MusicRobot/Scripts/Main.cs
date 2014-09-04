@@ -17,6 +17,8 @@ public enum EState
 
 public class Main : MonoBehaviour 
 {
+	public MidiPlayer _midiPlayer;
+
 	public string[] _lstUsingPort = new string[4];
 	public string[] _lstConnectingPort = new string[4];
 
@@ -86,7 +88,7 @@ public class Main : MonoBehaviour
 	public void CheckMusicRobot()
 	{
 		bool AllConnect = true;
-		foreach(string port in _lstConnectingPort)
+		foreach(string port in _lstUsingPort)
 		{
 			if (port == "")
 				AllConnect = false;
@@ -113,6 +115,7 @@ public class Main : MonoBehaviour
 		_goStopBtn.SetActive(true);
 		_goTimeBar.SetActive(true);
 		_CurState = EState.PLAY;
+		_midiPlayer.Play();
 	}
 
 
@@ -123,11 +126,13 @@ public class Main : MonoBehaviour
 		{
 			_CurState = EState.PAUSE;
 			_UILblPause.text = "Play";
+			_midiPlayer.Pause();
 		}
 		else
 		{
 			_CurState = EState.RESUME;
 			_UILblPause.text = "Pause";
+			_midiPlayer.Resume();
 		}
 	}
 
@@ -139,6 +144,9 @@ public class Main : MonoBehaviour
 		_goPauseBtn.SetActive(false);
 		_goStopBtn.SetActive(false);
 		_goTimeBar.SetActive(false);
+		_CurState = EState.STOP;
+		_UILblPause.text = "Pause";
+		_midiPlayer.Stop();
 	}
 
 
@@ -151,11 +159,64 @@ public class Main : MonoBehaviour
 
 
 
-//	// Update ----------------------------------------------
-//	void Update () 
-//	{
-//	
-//	}
+	// Update ----------------------------------------------
+	void Update () 
+	{
+		UpdateDisplayTime();
+	}
+
+
+
+
+	// UpdateDisplayTime -----------------------------------------
+	void UpdateDisplayTime()
+	{
+		if (_CurState == EState.READY)
+			return;
+		if (_CurState == EState.STOP)
+			return;
+		if (_CurState == EState.PAUSE)
+			return;
+
+		int nTotalMinut = (int)Mathf.Floor(_midiPlayer.totalTime / 60f);
+		string strTotalMinute = string.Format("{0:D2}", nTotalMinut);
+
+		int nTotalSecond = (int)Mathf.Floor(_midiPlayer.totalTime) - (nTotalMinut * 60);
+		string strTotalSecond = string.Format("{0:D2}", nTotalSecond);
+
+		int nCurMinut = (int)Mathf.Floor(_midiPlayer.currentTime / 60f);
+		string strCurMinute = string.Format("{0:D2}", nCurMinut);
+		
+		int nCurSecond = (int)Mathf.Floor(_midiPlayer.currentTime) - (nCurMinut * 60);
+		string strCurSecond = string.Format("{0:D2}", nCurSecond);
+
+		_UILblMusicTimeLength.text = strTotalMinute + "." + strTotalSecond;
+		_UILblMusicTimeBar.text = strCurMinute + "." + strCurSecond;
+
+		_UISldTimeBar.value = _midiPlayer.currentTime / _midiPlayer.totalTime;
+
+		if (!_midiPlayer.isPlaying)
+			StopMusicRobot();
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }

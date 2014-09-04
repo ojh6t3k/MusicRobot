@@ -26,6 +26,7 @@ GameObject:
   - 4: {fileID: 400002}
   - 114: {fileID: 11400002}
   - 114: {fileID: 11400000}
+  - 114: {fileID: 11400014}
   m_Layer: 0
   m_Name: Group_Connect
   m_TagString: Untagged
@@ -255,7 +256,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 100002}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -360, y: 260, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 400018}
@@ -493,7 +494,8 @@ MonoBehaviour:
   portName: 
   baudrate: 57600
   timeoutSec: 5
-  modules: []
+  modules:
+  - {fileID: 11400014}
 --- !u!114 &11400002
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -505,7 +507,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6562bbbe6a1822e45b7ec32a0fa87609, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _Name: ROBOT
+  _main: {fileID: 0}
+  _Name: Vocal
+  _RobotID: 1
   _RobotProxy: {fileID: 11400000}
   _UIPortList: {fileID: 11400010}
   _goBtnConnect: {fileID: 100014}
@@ -745,6 +749,19 @@ MonoBehaviour:
   mAtlas: {fileID: 11400000, guid: 1fdf5ee9c9ee4304996c92e94e9c354f, type: 2}
   mSpriteName: UI_Box_g
   mFillCenter: 1
+--- !u!114 &11400014
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a7b39be56fdc1044be6e9ddf1727610, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  owner: {fileID: 0}
+  id: 0
 --- !u!114 &11400016
 MonoBehaviour:
   m_ObjectHideFlags: 1
