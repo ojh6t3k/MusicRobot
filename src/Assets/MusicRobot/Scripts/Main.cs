@@ -19,6 +19,8 @@ public class Main : MonoBehaviour
 {
 	public MidiPlayer _midiPlayer;
 
+	public GameObject _BGM;
+
 	public string[] _lstUsingPort = new string[4];
 	public string[] _lstConnectingPort = new string[4];
 
@@ -116,6 +118,7 @@ public class Main : MonoBehaviour
 		_goTimeBar.SetActive(true);
 		_CurState = EState.PLAY;
 		_midiPlayer.Play();
+		_BGM.audio.Play();
 	}
 
 
@@ -127,12 +130,14 @@ public class Main : MonoBehaviour
 			_CurState = EState.PAUSE;
 			_UILblPause.text = "Play";
 			_midiPlayer.Pause();
+			_BGM.audio.Pause();
 		}
 		else
 		{
 			_CurState = EState.RESUME;
 			_UILblPause.text = "Pause";
 			_midiPlayer.Resume();
+			_BGM.audio.Play();
 		}
 	}
 
@@ -147,6 +152,7 @@ public class Main : MonoBehaviour
 		_CurState = EState.STOP;
 		_UILblPause.text = "Pause";
 		_midiPlayer.Stop();
+		_BGM.audio.Stop();
 	}
 
 
