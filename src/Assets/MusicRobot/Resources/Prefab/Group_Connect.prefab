@@ -25,8 +25,6 @@ GameObject:
   m_Component:
   - 4: {fileID: 400002}
   - 114: {fileID: 11400002}
-  - 114: {fileID: 11400000}
-  - 114: {fileID: 11400014}
   m_Layer: 0
   m_Name: Group_Connect
   m_TagString: Untagged
@@ -478,24 +476,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 40, y: 40, z: 1}
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &11400000
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 100002}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 14a9b145b6dd41248b7e491249daf35b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  portNames:
-  - COM1
-  portName: 
-  baudrate: 57600
-  timeoutSec: 5
-  modules:
-  - {fileID: 11400014}
 --- !u!114 &11400002
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -508,9 +488,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _main: {fileID: 0}
-  _Name: Vocal
-  _RobotID: 1
-  _RobotProxy: {fileID: 11400000}
+  _Name: Drum
+  _RobotID: 4
+  _RobotProxy: {fileID: 0}
+  _musicBot: {fileID: 0}
   _UIPortList: {fileID: 11400010}
   _goBtnConnect: {fileID: 100014}
   _goConnectingDeco: {fileID: 100026}
@@ -605,7 +586,11 @@ MonoBehaviour:
   pressedSprite2D: {fileID: 0}
   disabledSprite2D: {fileID: 0}
   pixelSnap: 0
-  onClick: []
+  onClick:
+  - mTarget: {fileID: 11400002}
+    mMethodName: RobotTest
+    mParameters: []
+    oneShot: 0
 --- !u!114 &11400008
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -749,19 +734,6 @@ MonoBehaviour:
   mAtlas: {fileID: 11400000, guid: 1fdf5ee9c9ee4304996c92e94e9c354f, type: 2}
   mSpriteName: UI_Box_g
   mFillCenter: 1
---- !u!114 &11400014
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 100002}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a7b39be56fdc1044be6e9ddf1727610, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  owner: {fileID: 0}
-  id: 0
 --- !u!114 &11400016
 MonoBehaviour:
   m_ObjectHideFlags: 1

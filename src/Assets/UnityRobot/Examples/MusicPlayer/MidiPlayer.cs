@@ -7,13 +7,22 @@ using UnityRobot;
 [Serializable]
 public class ToneTrack
 {
+	[HideInInspector]
+	public MidiPlayer owner;
+
 	public string instrumentName;
 	public ToneModule tone;
 	public bool mute = false;
 
+	public EventHandler OnNoteChanged;
+
 	private MidiTrack _midiTrack;
 	private int _noteIndex = 0;
+	private ToneNote _currentToneNote;
 	private ToneNote _lastToneNote;
+	private MidiNote _currentNote;
+	private MidiNote _nextNote;
+	private int _durationPulse = 0;
 
 	public ToneTrack(MidiTrack midiTrack)
 	{
@@ -27,34 +36,96 @@ public class ToneTrack
 	public void Reset()
 	{
 		_noteIndex = 0;
-		_lastToneNote = ToneNote.MUTE;
+		_currentToneNote = ToneNote.MUTE;
+		_lastToneNote = _currentToneNote;
+
+		_currentNote = _midiTrack.Notes[_noteIndex];
+		_durationPulse = _currentNote.StartTime;
+		if ((_noteIndex + 1) < _midiTrack.Notes.Count)
+			_nextNote = _midiTrack.Notes[_noteIndex + 1];
+		else
+			_nextNote = null;
+
 		if(tone != null)
 			tone.Note = ToneNote.MUTE;
+		if(OnNoteChanged != null)
+			OnNoteChanged(this, null);
 	}
 
 	public void Process(int pulse)
 	{
 		if (_noteIndex < _midiTrack.Notes.Count)
 		{
-			MidiNote note = _midiTrack.Notes[_noteIndex];
-			if(pulse >= note.EndTime)
+			if(pulse >= _currentNote.EndTime)
 			{
 				_noteIndex++;
-				_lastToneNote = ToneNote.MUTE;
-			}
-			else if (pulse >= note.StartTime)
-				_lastToneNote = NoteToTone(note.Number);
+				_currentNote = _nextNote;
 
-			if(tone != null && mute == false)
-				tone.Note = _lastToneNote;
+				if(_currentNote.StartTime > pulse)
+					_durationPulse = _currentNote.StartTime - pulse;
+				else
+					_durationPulse = 0;
+
+				if (_noteIndex < _midiTrack.Notes.Count)
+					_nextNote = _midiTrack.Notes[_noteIndex];
+				else
+					_nextNote = null;
+
+				_currentToneNote = ToneNote.MUTE;
+			}
+			else if (pulse >= _currentNote.StartTime)
+			{
+				_currentToneNote = NoteToTone(_currentNote.Number);
+				_durationPulse = _currentNote.Duration;
+			}
+
+			if(_lastToneNote != _currentToneNote)
+			{
+				_lastToneNote = _currentToneNote;
+				if(mute == false)
+				{
+					if(tone != null)
+						tone.Note = _currentToneNote;
+					
+					if(OnNoteChanged != null)
+						OnNoteChanged(this, null);
+				}
+			}
 		}
 	}
 
-	public ToneNote lastToneNote
+	public ToneNote currentToneNote
 	{
 		get
 		{
-			return _lastToneNote;
+			return _currentToneNote;
+		}
+	}
+
+	public ToneNote nextToneNote
+	{
+		get
+		{
+			if(_nextNote == null)
+				return ToneNote.MUTE;
+			else
+				return NoteToTone(_nextNote.Number);
+		}
+	}
+
+	public float durationTime
+	{
+		get
+		{
+			return _durationPulse * owner.pulseTime;
+		}
+	}
+
+	public int durationPulse
+	{
+		get
+		{
+			return _durationPulse;
 		}
 	}
 
@@ -64,6 +135,54 @@ public class ToneTrack
 
 		switch(note)
 		{
+		case 24:
+			toneNote = ToneNote.C2;
+			break;
+			
+		case 25:
+			toneNote = ToneNote.CS2;
+			break;
+			
+		case 26:
+			toneNote = ToneNote.D2;
+			break;
+			
+		case 27:
+			toneNote = ToneNote.DS2;
+			break;
+			
+		case 28:
+			toneNote = ToneNote.E2;
+			break;
+			
+		case 29:
+			toneNote = ToneNote.F2;
+			break;
+			
+		case 30:
+			toneNote = ToneNote.FS2;
+			break;
+			
+		case 31:
+			toneNote = ToneNote.G2;
+			break;
+			
+		case 32:
+			toneNote = ToneNote.GS2;
+			break;
+			
+		case 33:
+			toneNote = ToneNote.A2;
+			break;
+			
+		case 34:
+			toneNote = ToneNote.AS2;
+			break;
+			
+		case 35:
+			toneNote = ToneNote.B2;
+			break;
+
 		case 36:
 			toneNote = ToneNote.C3;
 			break;
@@ -302,14 +421,14 @@ public class MidiPlayer : MonoBehaviour
 				{
 					if(tracks.Length == 1)
 					{
-						_singleToneNote = tracks[0].lastToneNote;
+						_singleToneNote = tracks[0].currentToneNote;
 					}
 					else
 					{
 						ToneNote finalToneNote = ToneNote.MUTE;
 						foreach(ToneTrack track in tracks)
 						{
-							ToneNote eachToneNote = track.lastToneNote;
+							ToneNote eachToneNote = track.currentToneNote;
 							if(track.tone == null && track.mute == false)
 							{
 								if(finalToneNote != eachToneNote)
@@ -349,13 +468,32 @@ public class MidiPlayer : MonoBehaviour
 		tracks = new ToneTrack[_midiFile.Tracks.Count];
 
 		for(int i=0; i<_midiFile.Tracks.Count; i++)
+		{
 			tracks[i] = new ToneTrack(_midiFile.Tracks[i]);
+			tracks[i].owner = this;
+		}
 
 		_bIsPlay = false;
 		_pulseTime = (float)_midiFile.Time.Tempo / (float)_midiFile.Time.Quarter; // microsec
 		_pulseTime /= 1000000f; //sec
 		_totalTime = _midiFile.TotalPulses * _pulseTime;
 		_time = 0f;
+	}
+
+	public ToneTrack[] FindTracks(string[] names)
+	{
+		ArrayList findTracks = new ArrayList();
+
+		foreach(string name in names)
+		{
+			foreach(ToneTrack track in tracks)
+			{
+				if(track.instrumentName.Equals(name) == true)
+					findTracks.Add(track);
+			}
+		}
+
+		return (ToneTrack[])findTracks.ToArray(typeof(ToneTrack));
 	}
 
 	public bool isPlaying
@@ -371,6 +509,14 @@ public class MidiPlayer : MonoBehaviour
 		get
 		{
 			return _time;
+		}
+	}
+
+	public float pulseTime
+	{
+		get
+		{
+			return _pulseTime;
 		}
 	}
 

@@ -12,6 +12,8 @@ public class EachConnect : MonoBehaviour
 	public string _Name = "Robot";
 	public int _RobotID = 0;
 	public RobotProxy _RobotProxy;
+	public MusicBot _musicBot;
+
 	public UIPopupList _UIPortList;
 
 	bool IsConnect_Robot = false;
@@ -110,7 +112,8 @@ public class EachConnect : MonoBehaviour
 	// RobotTest ------------------------------------------
 	public void RobotTest()
 	{
-		//
+		if(_musicBot != null)
+			_musicBot.Test();
 	}
 
 
@@ -138,6 +141,9 @@ public class EachConnect : MonoBehaviour
 
 		PlayerPrefs.SetString("PP_Port" + _RobotID.ToString(), _RobotProxy.portName);
 		_UIlblName.text = _Name + " : " + PlayerPrefs.GetString("PP_Port" + _RobotID.ToString());
+
+		if(_musicBot != null)
+			_musicBot.Ready();
 	}
 	
 	void OnConnectionFailed(object sender, EventArgs e)

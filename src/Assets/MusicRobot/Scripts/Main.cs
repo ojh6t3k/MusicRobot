@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+using System;
+using UnityRobot;
 
 
 public enum EState
@@ -18,6 +19,8 @@ public enum EState
 public class Main : MonoBehaviour 
 {
 	public MidiPlayer _midiPlayer;
+	public MusicBot[] _musicBots;
+	public LightFactory _lightFactory;
 
 	public GameObject _BGM;
 
@@ -44,11 +47,23 @@ public class Main : MonoBehaviour
 	EState _CurState = EState.READY;
 
 
-//	// Start -----------------------------------------------
-//	void Start () 
-//	{
-//	
-//	}
+	// Start -----------------------------------------------
+	void Start () 
+	{
+		if(_lightFactory != null)
+		{
+			_lightFactory.OnSignalGo += OnSignalGo;
+			_lightFactory.OnSignalStop += OnSignalStop;
+		}
+
+		foreach(MusicBot musicBot in _musicBots)
+		{
+			if(musicBot != null)
+			{
+				musicBot.toneTracks = _midiPlayer.FindTracks(musicBot.trackNames);
+			}
+		}
+	}
 
 
 	// CheckUsePort ---------------------------------------------
@@ -155,7 +170,15 @@ public class Main : MonoBehaviour
 		_BGM.audio.Stop();
 	}
 
-
+	void OnSignalGo(object sender, EventArgs e)
+	{
+		PlayMusicRobot();
+	}
+	
+	void OnSignalStop(object sender, EventArgs e)
+	{
+		StopMusicRobot();
+	}
 
 
 
