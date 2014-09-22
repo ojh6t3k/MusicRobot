@@ -11,11 +11,12 @@ using System.Xml;
 
 public class LightFactory : MonoBehaviour
 {
+	public int portNumber = 11004;
+
 	public EventHandler OnSignalGo;
 	public EventHandler OnSignalStop;
 	
 	private Socket _socket;
-	private int _port = 11004;
 	private Thread _thread = null;
 	private bool _signalGo = false;
 	private bool _signalStop = false;
@@ -23,7 +24,7 @@ public class LightFactory : MonoBehaviour
 	void Awake()
 	{
 		_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);		
-		IPEndPoint ipep = new IPEndPoint(IPAddress.Any, _port);		
+		IPEndPoint ipep = new IPEndPoint(IPAddress.Any, portNumber);		
 		_socket.Bind(ipep);
 
 		_thread = new Thread(ThreadWork);		
